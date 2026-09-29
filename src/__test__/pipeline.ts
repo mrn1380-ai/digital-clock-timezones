@@ -1,0 +1,20 @@
+import { loadBooks } from '../lib/nobitex';
+import { buildRows, classify, findDrivers, normalizeDepth, runGroupTests, summarize, summarizeClasses } from '../lib/analytics';
+
+const res = await loadBooks();
+console.log('source:', res.source, '| markets:', Object.keys(res.books).length);
+const rows = buildRows(res.books);
+const { usdtIrt } = normalizeDepth(rows);
+const cuts = classify(rows);
+const s = summarize(rows, usdtIrt);
+console.log('live:', s.live, '/', s.total, '| medianSpread:', s.medianSpread.toFixed(4), '| medianEntryCost:', s.medianEntryCost.toFixed(4));
+console.log('fees:', s.feeDistinct.map((f) => `${f.fee}%×${f.count}`).join(' '));
+console.log('usdtIrt:', usdtIrt.toFixed(0), '| spread cuts:', JSON.stringify(cuts.spreadCuts), '| depth cuts:', JSON.stringify(cuts.depthCuts));
+console.log('\n-- group tests --');
+for (const t of runGroupTests(rows)) console.log(`${t.meaningful ? 'YES' : ' no'} | ${t.label}: ratio=${t.ratio.toFixed(2)} p=${t.p.toFixed(4)} d=${t.d.toFixed(2)} (${t.effect})`);
+console.log('\n-- drivers --');
+for (const d of findDrivers(rows)) console.log(`${d.factor}: rho=${d.rho.toFixed(3)} p=${d.p.toFixed(4)} ${d.strength}`);
+console.log('\n-- classes --');
+for (const c of summarizeClasses(rows)) console.log(`${c.title}: n=${c.count} medSpread=${c.medianSpread.toFixed(3)} medEntry=${c.medianEntryCost.toFixed(3)} ex=[${c.examples.slice(0, 3).join(',')}]`);
+const r0 = rows.find((r) => r.symbol === 'BTCUSDT')!;
+console.log('\nsample row BTCUSDT:', JSON.stringify({ spread: r0.spreadPct.toFixed(4), fee: r0.takerPct, entry: r0.entryCostPct.toFixed(4), depth: Math.round(r0.depthUsd), score: r0.score, q: r0.quality }));
