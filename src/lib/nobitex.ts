@@ -12,12 +12,20 @@ export interface RawBook {
 
 export type BooksMap = Record<string, RawBook>;
 
+export interface Attempt {
+  label: string;
+  ok: boolean;
+  ms: number;
+  detail: string;
+}
+
 export interface LoadResult {
   books: BooksMap;
   source: 'live' | 'proxy' | 'snapshot' | 'sample';
   sourceLabel: string;
   fetchedAt: number;
   error?: string;
+  attempts: Attempt[];
 }
 
 const LIVE_URL = 'https://apiv2.nobitex.ir/v3/orderbook/all';
@@ -56,36 +64,57 @@ async function getJson(url: string, timeoutMs = 20000): Promise<BooksMap> {
  * در صورت شکست از پروکسی‌های عمومی، سپس اسنپ‌شات محلی و در نهایت داده نمونه.
  */
 export async function loadBooks(): Promise<LoadResult> {
-  const errors: string[] = [];
-  try {
-    const books = await getJson(LIVE_URL);
-    return { books, source: 'live', sourceLabel: 'زنده · apiv2.nobitex.ir', fetchedAt: Date.now() };
-  } catch (e: any) {
-    errors.push(`اتصال مستقیم: ${e?.message || e}`);
-  }
-  for (const p of PROXIES) {
+  const attempts: Attempt[] = [];
+  const tryOne = async (label: string, url: string, t: number, onOk: 'live' | 'proxy') => {
+    const t0 = performance.now();
     try {
-      const books = await getJson(p.build(LIVE_URL), 25000);
-      return { books, source: 'proxy', sourceLabel: `زنده · ${p.label}`, fetchedAt: Date.now() };
+      const books = await getJson(url, t);
+      attempts.push({
+        label,
+        ok: true,
+        ms: Math.round(performance.now() - t0),
+        detail: `${Object.keys(books).length} بازار دریافت شد`,
+      });
+      return { books, source: onOk, sourceLabel: `زنده · ${label}` } as const;
     } catch (e: any) {
-      errors.push(`${p.label}: ${e?.message || e}`);
+      attempts.push({
+        label,
+        ok: false,
+        ms: Math.round(performance.now() - t0),
+        detail: e?.name === 'AbortError' ? 'timeout' : String(e?.message || e),
+      });
+      return null;
     }
+  };
+
+  const direct = await tryOne('apiv2.nobitex.ir (مستقیم)', LIVE_URL, 15000, 'live');
+  if (direct) return { ...direct, fetchedAt: Date.now(), attempts };
+
+  for (const p of PROXIES) {
+    const r = await tryOne(p.label, p.build(LIVE_URL), 25000, 'proxy');
+    if (r) return { ...r, fetchedAt: Date.now(), attempts };
   }
+
   const snap = (snapshot as any)?.books;
   if (snap && Object.keys(snap).length) {
+    attempts.push({ label: 'اسنپ‌شات آفلاین', ok: true, ms: 0, detail: `${Object.keys(snap).length} بازار از فایل محلی` });
     return {
       books: snap,
       source: 'snapshot',
       sourceLabel: `اسنپ‌شات آفلاین (${(snapshot as any).generatedAt ? new Date((snapshot as any).generatedAt).toLocaleString('fa-IR') : '—'})`,
       fetchedAt: (snapshot as any).generatedAt ?? Date.now(),
+      attempts,
     };
   }
+
+  attempts.push({ label: 'داده نمونه (دمو)', ok: true, ms: 0, detail: 'داده ساختگی — فقط برای تست رابط کاربری' });
   return {
     books: SAMPLE_BOOKS,
     source: 'sample',
     sourceLabel: 'داده نمونه (دمو) — ساختگی، صرفاً برای تست رابط کاربری',
     fetchedAt: Date.now(),
-    error: errors.join(' | '),
+    error: attempts.map((a) => `${a.label}: ${a.detail}`).join(' | '),
+    attempts,
   };
 }
 

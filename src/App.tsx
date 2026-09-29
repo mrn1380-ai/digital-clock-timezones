@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { loadBooks, LoadResult } from './lib/nobitex';
+import { Attempt, loadBooks, LoadResult } from './lib/nobitex';
 import {
   buildRows,
   classify,
@@ -26,6 +26,8 @@ export default function App() {
   const [kind, setKind] = useState<KindFilter>('ALL');
   const [minDepth, setMinDepth] = useState(0);
   const [onlyActive, setOnlyActive] = useState(true);
+  const [showDiag, setShowDiag] = useState(false);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -33,11 +35,11 @@ export default function App() {
       const res = await loadBooks();
       setData(res);
       const built = buildRows(res.books);
-      const { usdtIrt } = normalizeDepth(built);
+      normalizeDepth(built);
       classify(built);
       setRows(built);
-      setData((d) => (d ? { ...d, books: res.books } : d));
-      void usdtIrt;
+      setData(res);
+      setAttempts(res.attempts);
     } finally {
       setLoading(false);
     }
@@ -104,8 +106,49 @@ export default function App() {
           <button onClick={() => setAuto((a) => !a)}>
             بروزرسانی خودکار: {auto ? 'روشن' : 'خاموش'}
           </button>
+          <button onClick={() => setShowDiag((s) => !s)}>
+            {showDiag ? 'بستن گزارش اتصال' : 'گزارش اتصال'}
+          </button>
         </div>
       </header>
+
+      {showDiag && (
+        <div className="card mb">
+          <h3>گزارش اتصال به منابع داده</h3>
+          <p className="hint">هر مسیر به ترتیب امتحان می‌شود؛ اولین موفقیت استفاده می‌شود. زمان‌ها بر حسب میلی‌ثانیه.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>مسیر</th>
+                <th>نتیجه</th>
+                <th className="num">زمان</th>
+                <th>جزئیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attempts.map((a, i) => (
+                <tr key={i}>
+                  <td>{a.label}</td>
+                  <td>
+                    <span className="pill" style={{ background: a.ok ? '#22c55e' : '#ef4444' }}>
+                      {a.ok ? 'موفق' : 'ناموفق'}
+                    </span>
+                  </td>
+                  <td className="num mono">{a.ms} ms</td>
+                  <td className="muted" style={{ whiteSpace: 'normal' }}>{a.detail}</td>
+                </tr>
+              ))}
+              {!attempts.length && (
+                <tr><td colSpan={4} className="muted" style={{ textAlign: 'center' }}>در حال بررسی…</td></tr>
+              )}
+            </tbody>
+          </table>
+          <p className="note" style={{ marginTop: 10 }}>
+            اگر همه ردیف‌ها «ناموفق» بودند: یا مرورگرت پشت فایروال است، یا نوبیتکس برای این دامنه CORS نمی‌فرستد.
+            در آن صورت روی کامپیوتر خودت <code>npm run snapshot</code> بزن تا با اسنپ‌شات آفلاین کار کند.
+          </p>
+        </div>
+      )}
 
       {data?.source === 'sample' && (
         <div className="errbox">
