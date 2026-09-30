@@ -7,7 +7,7 @@ import TabClusters from './components/TabClusters.jsx'
 import TabSymbols from './components/TabSymbols.jsx'
 import TabStability from './components/TabStability.jsx'
 import TabDepth from './components/TabDepth.jsx'
-import { TRANSPORTS, fetchWithFallback, fetchOrderbookAll, detectShape } from './lib/sources.js'
+import { TRANSPORTS, fetchWithFallback, fetchOrderbookAll, detectShape, probeTransport } from './lib/sources.js'
 import { normalizeNobitex, normalizeCoingecko, analyze, stabilityFromHistory, medianSeries } from './lib/analyze.js'
 import { parseOrderbookAll, bookMetrics, matchBook } from './lib/orderbook.js'
 
@@ -47,7 +47,14 @@ export default function App() {
   const [obError, setObError] = useState(null)
   const [showDiag, setShowDiag] = useState(false)
   const [manualText, setManualText] = useState('')
+  const [probes, setProbes] = useState({})
   const inflight = useRef(false)
+
+  const runProbe = useCallback(async (id) => {
+    setProbes((p) => ({ ...p, [id]: { pending: true } }))
+    const r = await probeTransport(id)
+    setProbes((p) => ({ ...p, [id]: r }))
+  }, [])
 
   const order = useMemo(() => {
     if (sourceId === 'auto') return TRANSPORTS.map((t) => t.id).filter((id) => id !== 'mock')
@@ -199,33 +206,45 @@ export default function App() {
             چون سرور میزبان به اینترنت دسترسی ندارد، داده مستقیماً از مرورگر شما دریافت می‌شود. در صورت مسدود بودن
             دسترسی مستقیم به نوبیتکس (مثلاً تحریمِ جغرافیایی)، منابع جایگزین امتحان می‌شوند.
           </div>
-          <div className="table-wrap" style={{ maxHeight: 220, marginTop: 8 }}>
+          <div className="table-wrap" style={{ maxHeight: 300, marginTop: 8 }}>
             <table>
               <thead>
                 <tr>
                   <th>منبع</th>
-                  <th>وضعیت</th>
-                  <th>زمان</th>
+                  <th>تست دستی</th>
+                  <th>نتیجه تست</th>
+                  <th>وضعیت در آخرین بارگذاری</th>
                   <th>توضیح</th>
                 </tr>
               </thead>
               <tbody>
-                {log.map((l, i) => {
-                  const t = TRANSPORTS.find((x) => x.id === l.id)
+                {TRANSPORTS.map((t) => {
+                  const l = log.find((x) => x.id === t.id)
+                  const p = probes[t.id]
                   return (
-                    <tr key={i}>
-                      <td>{t?.label || l.id}</td>
-                      <td className={l.ok ? 'sig yes' : 'sig no'}>{l.ok ? 'موفق' : 'ناموفق'}</td>
-                      <td className="num">{l.ms != null ? `${l.ms}ms` : '—'}</td>
-                      <td className="small">{l.error || t?.note || ''}</td>
+                    <tr key={t.id}>
+                      <td>{t.label}</td>
+                      <td>
+                        <button className="small ghost" onClick={() => runProbe(t.id)} disabled={p?.pending}>
+                          {p?.pending ? <span className="spinner" /> : 'تست'}
+                        </button>
+                      </td>
+                      <td className={p?.ok ? 'sig yes' : p?.ok === false ? 'sig no' : 'small'}>
+                        {p?.pending
+                          ? 'در حال تست…'
+                          : p?.ok
+                          ? `✅ موفق · ${p.ms}ms · ${p.markets} بازار`
+                          : p?.ok === false
+                          ? `❌ ${p.error}`
+                          : '—'}
+                      </td>
+                      <td className={l ? (l.ok ? 'sig yes' : 'sig no') : 'small'}>
+                        {l ? (l.ok ? `موفق (${l.ms}ms)` : `ناموفق: ${l.error}`) : 'امتحان نشده'}
+                      </td>
+                      <td className="small">{t.note}</td>
                     </tr>
                   )
                 })}
-                {!log.length && (
-                  <tr>
-                    <td colSpan={4} className="small">هنوز تلاشی ثبت نشده است.</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

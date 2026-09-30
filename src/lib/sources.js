@@ -123,6 +123,24 @@ export async function fetchWithFallback(order = TRANSPORTS.map((t) => t.id)) {
   return { transport: null, json: null, log, shape: 'unknown' }
 }
 
+/** تست تک‌منبع: برای تشخیص سریع اینکه کدام مسیر در مرورگر کاربر کار می‌کند */
+export async function probeTransport(id) {
+  const tr = TRANSPORTS.find((t) => t.id === id) || TRANSPORTS[0]
+  if (tr.kind === 'mock') {
+    const { makeMockStats } = await import('./mock.js')
+    return { ok: true, ms: 0, markets: Object.keys(makeMockStats().stats).length, note: 'داده شبیه‌سازی‌شده' }
+  }
+  try {
+    const t0 = performance.now()
+    const json = extractJson(await fetchText(tr.url, 12000))
+    const markets = Object.keys(json?.stats || {}).length || json?.tickers?.length || 0
+    if (!markets) throw new Error('پاسخ دریافت شد اما بازاری نداشت')
+    return { ok: true, ms: Math.round(performance.now() - t0), markets }
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) }
+  }
+}
+
 export function detectShape(json) {
   if (json?.stats && typeof json.stats === 'object') return 'nobitex-stats'
   if (json?.tickers && Array.isArray(json.tickers)) return 'coingecko-tickers'
