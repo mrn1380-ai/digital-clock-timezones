@@ -129,6 +129,32 @@ export interface SymbolCost {
 
 export type DataMode = "live" | "snapshot" | "synthetic";
 
+/** نتیجه بررسی اتصال به یک میزبان بایننس */
+export interface HostProbe {
+  host: string;
+  ok: boolean;
+  status: number | null;
+  latencyMs: number;
+  kind: "ok" | "geo-block" | "rate-limit" | "server" | "http" | "dns" | "timeout" | "network" | "unknown";
+  message: string;
+}
+
+/** وضعیت کلی اتصال — نمایش داده‌شده در داشبورد */
+export interface ConnectionStatus {
+  checkedAt: number;
+  /** آیا حداقل یک میزبان پاسخ داد؟ */
+  reachable: boolean;
+  /** آیا مشکل از محدودیت جغرافیایی است؟ */
+  geoBlocked: boolean;
+  /** میزبانی که دادهٔ واقعی از آن گرفته شد */
+  activeHost: string | null;
+  /** آخرین زمانی که دادهٔ واقعی با موفقیت گرفته شد (ms) */
+  lastLiveSuccessAt: number | null;
+  /** توضیح یک‌خطی قابل اقدام */
+  message: string;
+  probes: HostProbe[];
+}
+
 export interface FactorBucket {
   factor: string;
   bucket: string;
@@ -160,6 +186,7 @@ export interface Report {
   mode: DataMode;
   deep: boolean;
   source: { host: string; exchange: string; endpoints: string[]; note?: string };
+  connection: ConnectionStatus;
   feeTierId: string;
   count: number;
   totalQuoteVolume24h: number;

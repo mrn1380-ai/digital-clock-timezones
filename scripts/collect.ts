@@ -10,9 +10,10 @@
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { collectRaw } from "../src/lib/binance";
+import { collectRaw, probeHosts } from "../src/lib/binance";
 import { buildSymbolCost } from "../src/lib/metrics";
 import { buildReport } from "../src/lib/analyze";
+import { buildConnection } from "../src/lib/pipeline";
 import { FEE_TIERS, type SymbolCost } from "../src/lib/types";
 
 function arg(name: string, def?: string): string | undefined {
@@ -36,6 +37,15 @@ async function main() {
   });
   if (deep) process.stdout.write("\n");
 
+  // گزارش وضعیت اتصال هر میزبان
+  const probes = await probeHosts();
+  console.log("\n  وضعیت اتصال:");
+  for (const p of probes) {
+    const mark = p.ok ? "✔" : "✖";
+    const code = p.status ? `HTTP ${p.status}` : p.kind.toUpperCase();
+    console.log(`    ${mark} ${p.host.padEnd(30)} ${code.padEnd(18)} ${String(p.latencyMs + "ms").padEnd(8)} ${p.message}`);
+  }
+
   const costs: SymbolCost[] = rows
     .map((r) => buildSymbolCost(r, { fee }))
     .filter((c): c is SymbolCost => c !== null);
@@ -52,6 +62,7 @@ async function main() {
     host,
     feeTierId: fee.id,
     note: "تولیدشده با اسکریپت collect (داده واقعی بایننس)",
+    connection: buildConnection({ probes, activeHost: host, lastLiveSuccessAt: Date.now(), dataOk: true }),
   });
 
   await fs.mkdir(path.dirname(outPath), { recursive: true });
@@ -67,10 +78,21 @@ async function main() {
   console.log(`\n  ذخیره شد: ${path.relative(process.cwd(), outPath)}\n`);
 }
 
-main().catch((e) => {
+main().catch(async (e) => {
   console.error(`\n✗ خطا: ${(e as Error).message}\n`);
-  if (/restricted location|HTTP 451|403/.test((e as Error).message)) {
-    console.error("  IP شما توسط بایننس geo-block شده است. با VPN یا شبکه دیگری اجرا کنید.\n");
+
+  // تشخیص دقیق علت: وضعیت هر میزبان
+  const probes = await probeHosts();
+  console.error("  وضعیت اتصال هر میزبان:");
+  for (const p of probes) {
+    const code = p.status ? `HTTP ${p.status}` : p.kind.toUpperCase();
+    console.error(`    ${p.ok ? "✔" : "✖"} ${p.host.padEnd(30)} ${code.padEnd(18)} ${String(p.latencyMs + "ms").padEnd(8)} ${p.message}`);
   }
+  const geo = probes.some((p) => p.kind === "geo-block");
+  console.error(
+    geo
+      ? "\n  ⇒ IP شما توسط بایننس geo-block شده است. با VPN یا شبکه دیگری اجرا کنید.\n"
+      : "\n  ⇒ دسترسی شبکه به fapi.binance.com برقرار نیست (فایروال/پراکسی/فیلتر DNS را بررسی کنید).\n",
+  );
   process.exit(1);
 });

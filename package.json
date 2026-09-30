@@ -9,7 +9,7 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "collect": "tsx scripts/collect.ts",
     "collect:deep": "tsx scripts/collect.ts --deep",
-    "test": "tsx --test src/lib/__tests__/metrics.test.ts"
+    "test": "tsx --test src/lib/__tests__/*.test.ts"
   },
   "dependencies": {
     "next": "^15.5.26",

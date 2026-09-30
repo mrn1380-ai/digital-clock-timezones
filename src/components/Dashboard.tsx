@@ -5,6 +5,7 @@ import { type Report, type SymbolCost, FEE_TIERS } from "@/lib/types";
 import { bps, faNum, money, pct, price, timeAgo, tierColor, Card, Kpi, SectionTitle, TierPill } from "./ui";
 import { FactorBuckets, FactorImpact, HeatGrid, SpreadHistogram, SpreadVsPrice, SpreadVsVolume, TierVolumeDonut } from "./charts";
 import { CorrTable, DataTierTable, DecisionTree, FactorTable, RuleTierTable, SymbolTable } from "./tables";
+import { ConnectionPanel } from "./connection";
 
 interface Props {
   initial: { report: Report; costs: SymbolCost[] } | null;
@@ -183,6 +184,15 @@ export default function Dashboard({ initial, initialError }: Props) {
   }
 
   const s = report.summary;
+  const conn = report.connection;
+  const connectionBadge = conn?.reachable ? (
+    <span className="badge live"><i className="dot" /> اتصال سالم — {conn.activeHost ?? "بایننس"}</span>
+  ) : conn?.geoBlocked ? (
+    <span className="badge synthetic"><i className="dot" /> مسدود جغرافیایی (IP)</span>
+  ) : (
+    <span className="badge snapshot"><i className="dot" /> بدون دسترسی شبکه</span>
+  );
+
   const modeBadge =
     report.mode === "live" ? (
       <span className="badge live"><i className="dot" /> داده زنده بایننس</span>
@@ -201,6 +211,7 @@ export default function Dashboard({ initial, initialError }: Props) {
             اسپرد و کارمزد بر حسب درصدی از قیمت (bps) روی همه نمادهای PERPETUAL — به‌همراه دسته‌بندی و عوامل مؤثر
           </p>
           <div style={{ display: "flex", gap: 7, marginTop: 8, flexWrap: "wrap" }}>
+            {connectionBadge}
             {modeBadge}
             <span className="badge">{faNum(report.count)} نماد</span>
             <span className="badge">حجم ۲۴س: {money(report.totalQuoteVolume24h)}$</span>
@@ -230,9 +241,9 @@ export default function Dashboard({ initial, initialError }: Props) {
         <div className="banner synthetic">
           <span>⚠️</span>
           <div>
-            <b>داده نمایشی است، نه داده واقعی بازار.</b> دسترسی زنده به <code style={{ direction: "ltr" }}>fapi.binance.com</code> از این محیط ممکن نبود
-            (محدودیت جغرافیایی IP یا شبکه). برای داده واقعی، روی سیستمی که به بایننس دسترسی دارد اجرا کنید:{" "}
-            <code>npm run collect</code> و بعد <code>npm run dev</code>. اعداد این صفحه صرفاً ساختار تحلیل را نشان می‌دهند و مبنای تصمیم معاملاتی نیستند.
+            <b>داده نمایشی است، نه داده واقعی بازار.</b> {conn?.message}{" "}
+            برای داده واقعی، روی سیستمی که به بایننس دسترسی دارد اجرا کنید: <code>npm run collect</code> و بعد{" "}
+            <code>npm run dev</code>. اعداد این صفحه صرفاً ساختار تحلیل را نشان می‌دهند و مبنای تصمیم معاملاتی نیستند.
           </div>
         </div>
       )}
@@ -240,7 +251,8 @@ export default function Dashboard({ initial, initialError }: Props) {
         <div className="banner snapshot">
           <span>⏱</span>
           <div>
-            <b>اتصال زنده برقرار نشد</b> — داشبورد آخرین اسنپ‌شات ذخیره‌شده (<code>data/snapshot.json</code>) را نشان می‌دهد. برای داده لحظه‌ای دکمهٔ «به‌روزرسانی» را بزنید یا شبکه/VPN مناسب فعال کنید.
+            <b>اتصال زنده برقرار نشد</b> — داشبورد آخرین اسنپ‌شات ذخیره‌شده (<code>data/snapshot.json</code>) را نشان می‌دهد.
+            علت: {conn?.message} برای داده لحظه‌ای دکمهٔ «بررسی مجدد» را بزنید یا شبکه/VPN مناسب فعال کنید.
             {report.source.note ? ` (${report.source.note})` : ""}
           </div>
         </div>
@@ -251,6 +263,10 @@ export default function Dashboard({ initial, initialError }: Props) {
           <div><b>خطا در دریافت داده:</b> <span style={{ direction: "ltr", display: "inline-block" }}>{error}</span></div>
         </div>
       )}
+
+      {/* ---------- وضعیت اتصال ---------- */}
+      <SectionTitle title="وضعیت اتصال به بایننس" sub="اول این بخش را چک کنید: اگر اتصال برقرار نباشد، اعداد داشبورد واقعی نیستند" />
+      {conn && <ConnectionPanel connection={conn} busy={busy} onRecheck={() => load(feeId, deep)} />}
 
       {/* ---------- KPI ---------- */}
       <SectionTitle title="خلاصه توزیع" sub={`اعداد بر حسب بیس‌پوینت از قیمت (bps)؛ ۱٪ = ۱۰۰ bps. رده کارمزد فعال: ${fee.label}`} />

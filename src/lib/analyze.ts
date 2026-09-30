@@ -1,4 +1,5 @@
 import {
+  type ConnectionStatus,
   type FactorBucket,
   type Report,
   type SymbolCost,
@@ -335,6 +336,7 @@ export interface BuildReportInput {
   feeTierId: string;
   generatedAt?: number;
   note?: string;
+  connection: ConnectionStatus;
 }
 
 export function buildReport(input: BuildReportInput): Report {
@@ -369,6 +371,7 @@ export function buildReport(input: BuildReportInput): Report {
       ],
       note: input.note,
     },
+    connection: input.connection,
     feeTierId: FEE_TIERS.some((f) => f.id === input.feeTierId) ? input.feeTierId : FEE_TIERS[0].id,
     count: rows.length,
     totalQuoteVolume24h: totalVol,

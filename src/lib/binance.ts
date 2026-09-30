@@ -1,4 +1,10 @@
-import { type BookTicker, type RawSymbolData, type SymbolMeta, type Ticker24h } from "./types";
+import {
+  type BookTicker,
+  type HostProbe,
+  type RawSymbolData,
+  type SymbolMeta,
+  type Ticker24h,
+} from "./types";
 
 /** میزبان‌های جایگزین؛ اگر یکی geo-block شد یا تایم‌اوت داد، بعدی امتحان می‌شود */
 export const HOSTS = [
@@ -11,6 +17,62 @@ export const HOSTS = [
 export interface FetchResult<T> {
   data: T;
   host: string;
+}
+
+/** دسته‌بندی خطای اتصال برای نمایش دقیق علت در داشبورد */
+export function classifyError(input: { status?: number | null; body?: string; name?: string; message?: string }): { kind: HostProbe["kind"]; message: string } {
+  const { status, body = "", name = "", message = "" } = input;
+  if (status && status >= 200 && status < 300) return { kind: "ok", message: "پاسخ معتبر" };
+  if (body.includes("restricted location") || body.includes("Service unavailable")) {
+    return { kind: "geo-block", message: "محدودیت جغرافیایی (IP کشور شما مجاز نیست)" };
+  }
+  if (status === 451 || status === 403) {
+    return { kind: "geo-block", message: body.slice(0, 120) || `HTTP ${status} — دسترسی رد شد` };
+  }
+  if (status === 429) return { kind: "rate-limit", message: "سقف نرخ درخواست (429)" };
+  if (status && status >= 500) return { kind: "server", message: `خطای سرور بایننس: HTTP ${status}` };
+  if (status) return { kind: "http", message: body.slice(0, 120) || `HTTP ${status}` };
+  if (name === "AbortError" || /timeout|timed? ?out/i.test(message)) {
+    return { kind: "timeout", message: "پاسخی در مهلت مقرر نرسید" };
+  }
+  if (/ENOTFOUND|EAI_AGAIN|getaddrinfo/i.test(message)) {
+    return { kind: "dns", message: "DNS resolve نشد (دامنه پیدا نشد یا DNS فیلتر است)" };
+  }
+  if (/ECONNREFUSED|ECONNRESET|EHOSTUNREACH|ENETUNREACH|fetch failed|certificate|TLS|SSL|handshake/i.test(message)) {
+    return { kind: "network", message: "بلاک شدن اتصال شبکه (فایروال/پراکسی/قطع مسیر TLS)" };
+  }
+  return { kind: "unknown", message: message || name || "خطای نامشخص" };
+}
+
+/**
+ * بررسی وضعیت اتصال به هر میزبان با یک درخواست سبک (/fapi/v1/time).
+ * همه به‌صورت موازی و مستقل از دریافت داده اصلی اجرا می‌شوند.
+ */
+export async function probeHosts(timeoutMs = 6_000): Promise<HostProbe[]> {
+  return Promise.all(
+    HOSTS.map(async (host): Promise<HostProbe> => {
+      const started = Date.now();
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), timeoutMs);
+      try {
+        const res = await fetch(`${host}/fapi/v1/time`, {
+          signal: ac.signal,
+          headers: { "User-Agent": "cost-distribution-dashboard/1.0", Accept: "application/json" },
+          cache: "no-store",
+        });
+        const body = res.ok ? "" : await res.text().catch(() => "");
+        const cls = classifyError({ status: res.status, body });
+        return { host, ok: cls.kind === "ok", status: res.status, latencyMs: Date.now() - started, kind: cls.kind, message: cls.message };
+      } catch (e) {
+        const err = e as Error & { cause?: { code?: string } };
+        const raw = `${err.message} ${err.cause?.code ?? ""}`;
+        const cls = classifyError({ name: err.name, message: raw });
+        return { host, ok: false, status: null, latencyMs: Date.now() - started, kind: cls.kind, message: cls.message };
+      } finally {
+        clearTimeout(timer);
+      }
+    }),
+  );
 }
 
 async function getJson<T>(path: string, timeoutMs = 12_000, hostOverride?: string): Promise<FetchResult<T>> {
@@ -33,7 +95,8 @@ async function getJson<T>(path: string, timeoutMs = 12_000, hostOverride?: strin
       const data = (await res.json()) as T;
       return { data, host };
     } catch (e) {
-      errors.push(`${host} → ${(e as Error).name}: ${(e as Error).message}`);
+      const err = e as Error & { cause?: { code?: string } };
+      errors.push(`${host} → ${err.cause?.code ?? err.name}: ${err.message}`);
     } finally {
       clearTimeout(timer);
     }
