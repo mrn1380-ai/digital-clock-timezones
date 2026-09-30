@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+.env*.local
+# اسنپ‌شات دادهٔ بازار (حجیم و وابسته به زمان) — با `npm run collect` ساخته می‌شود
+data/*.json
+!data/.gitkeep
