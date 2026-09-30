@@ -1,0 +1,34 @@
+{
+  "name": "nobitex-spread-cost-dashboard",
+  "version": "0.1.0",
+  "description": "تحلیل توزیع اسپرد و هزینه کل معاملات در تمام نمادهای نوبیتکس",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "selftest": "node scripts/selftest.mjs",
+    "smoke": "esbuild scripts/smoke.jsx --bundle --platform=node --format=cjs --outfile=node_modules/.cache/smoke.cjs --loader:.jsx=jsx --external:jsdom --log-level=error && node node_modules/.cache/smoke.cjs",
+    "test": "npm run selftest && npm run smoke"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrn1380-ai/digital-clock-timezones.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrn1380-ai/digital-clock-timezones/issues"
+  },
+  "homepage": "https://github.com/mrn1380-ai/digital-clock-timezones#readme",
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.1.1",
+    "vite": "^8.3.1"
+  },
+  "private": true,
+  "type": "module"
+}
