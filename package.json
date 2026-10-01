@@ -1,0 +1,29 @@
+{
+  "name": "nobitex-connection-dashboard",
+  "version": "1.0.0",
+  "description": "داشبورد مانیتورینگ وضعیت اتصال نوبیتکس و ساعت دیجیتال مناطق زمانی - Nobitex Connection Status & Timezones Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrn1380-ai/digital-clock-timezones.git"
+  },
+  "keywords": [
+    "nobitex",
+    "connection-status",
+    "dashboard",
+    "crypto",
+    "digital-clock",
+    "timezones",
+    "iran"
+  ],
+  "author": "mrn1380-ai",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}
