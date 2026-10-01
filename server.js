@@ -583,7 +583,24 @@ app.post('/api/nobitex/custom-probe', async (req, res) => {
   res.json(result);
 });
 
-// Start Server
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Nobitex Dashboard] Server running on http://0.0.0.0:${PORT}`);
+// Start Server on multiple standard ports (3000, 8080, 5000) for maximum preview compatibility
+const PRIMARY_PORT = parseInt(process.env.PORT || 3000, 10);
+const PORTS = [PRIMARY_PORT, 8080, 5000];
+const uniquePorts = [...new Set(PORTS)];
+
+server.listen(PRIMARY_PORT, '0.0.0.0', () => {
+  console.log(`[Nobitex Dashboard] Server running on http://0.0.0.0:${PRIMARY_PORT}`);
+});
+
+// Also listen on secondary ports if different from primary
+uniquePorts.filter(p => p !== PRIMARY_PORT).forEach(port => {
+  try {
+    const secondaryServer = http.createServer(app);
+    new WebSocketServer({ server: secondaryServer });
+    secondaryServer.listen(port, '0.0.0.0', () => {
+      console.log(`[Nobitex Dashboard] Secondary preview listener running on http://0.0.0.0:${port}`);
+    });
+  } catch (err) {
+    console.warn(`Could not bind secondary port ${port}:`, err.message);
+  }
 });
