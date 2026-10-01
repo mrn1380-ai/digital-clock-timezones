@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>داشبورد مانیتورینگ وضعیت اتصال نوبیتکس | Nobitex Connection Monitor</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300c087'/><path d='M30 50 L45 65 L70 35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round'/></svg>">
+</head>
+<body>
+
+  <!-- ========================================================================
+       App Header
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      
+      <!-- Brand & Title -->
+      <div class="brand-section">
+        <div class="nobitex-logo-wrapper">
+          <div class="nobitex-logo-icon">N</div>
+          <div class="brand-text">
+            <h1>
+              <span>داشبورد وضعیت اتصال نوبیتکس</span>
+              <span class="badge-tag">زنده و پایدار</span>
+            </h1>
+            <p>Nobitex Live Connection & Market Telemetry Dashboard</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Connection Status Pill -->
+      <div class="header-status-pill" id="header-status-badge">
+        <span class="beacon-dot online" id="header-beacon-dot"></span>
+        <span id="header-status-text">اتصال نوبیتکس: آنلاین و پایدار (1ms)</span>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="header-controls">
+        
+        <!-- Refresh Interval Selector -->
+        <select class="select-compact" id="select-refresh-interval" title="فاصله زمانی بررسی خودکار">
+          <option value="3">بررسی خودکار: هر ۳ ثانیه</option>
+          <option value="5" selected>بررسی خودکار: هر ۵ ثانیه</option>
+          <option value="10">بررسی خودکار: هر ۱۰ ثانیه</option>
+          <option value="30">بررسی خودکار: هر ۳۰ ثانیه</option>
+          <option value="0">بررسی خودکار: خاموش</option>
+        </select>
+
+        <!-- Manual Refresh Button -->
+        <button class="btn-primary" id="btn-refresh-now" title="تست فوری اتصال به نوبیتکس">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          <span>تست اتصال</span>
+        </button>
+
+        <!-- Settings & Diagnostics Button -->
+        <button class="btn-icon" id="btn-open-settings" title="تنظیمات و تست دستی اتصال">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <!-- Dark / Light Theme Toggle -->
+        <button class="btn-icon" id="btn-toggle-theme" title="تغییر تم تاریک / روشن">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Language Switch -->
+        <button class="btn-icon" id="btn-toggle-lang" title="Switch Language (FA / EN)" style="font-weight: 700; font-size: 0.76rem;">
+          EN
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Digital Clock & World Timezones Strip (digital-clock-timezones)
+       ======================================================================== -->
+  <section class="timezones-strip">
+    <div class="timezones-strip-inner">
+      
+      <!-- Primary Tehran Digital Clock -->
+      <div class="tehran-primary-clock">
+        <div class="clock-live-badge">
+          <span class="blink-dot"></span>
+          <span>ساعت رسمی ایران (تهران)</span>
+        </div>
+        <div class="tehran-digital-display">
+          <span class="digital-time-large" id="tehran-hours-min">--:--</span>
+          <span class="digital-seconds" id="tehran-sec">:--</span>
+        </div>
+        <div class="shamsi-date" id="shamsi-date">در حال همگام‌سازی...</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); direction: ltr;" id="gregorian-date"></div>
+      </div>
+
+      <!-- Secondary Global Financial Hubs Timezones -->
+      <div class="secondary-timezones-list" id="secondary-tz-list">
+        <!-- Injected via JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Main Content Container
+       ======================================================================== -->
+  <main class="main-content">
+
+    <!-- KPI Summary Row (4 Cards) -->
+    <section class="kpi-grid">
+      
+      <!-- KPI 1: Nobitex Overall Connection -->
+      <div class="kpi-card" style="--accent-color: var(--color-green);">
+        <div class="kpi-header">
+          <span class="kpi-title">وضعیت اتصال به نوبیتکس</span>
+          <div class="kpi-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value" id="kpi-status-val" style="color: var(--color-green);">متصل و پایدار</span>
+        </div>
+        <div class="kpi-footer">
+          <span id="kpi-status-sub">سرور لبه ابرآروان (185.143.234.130)</span>
+          <span class="indicator-tag success" id="kpi-status-tag"><span>●</span> TCP 443 OK</span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Latency & Response Time -->
+      <div class="kpi-card" style="--accent-color: var(--color-cyan);">
+        <div class="kpi-header">
+          <span class="kpi-title">تاخیر زمانی پینگ (Latency)</span>
+          <div class="kpi-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value" id="kpi-ping-val" style="color: var(--color-cyan); direction: ltr;">1</span>
+          <span class="kpi-unit">میلی‌ثانیه (ms)</span>
+        </div>
+        <div class="kpi-footer">
+          <span id="kpi-ping-avg">میانگین: 1ms | حداقل: 1ms</span>
+          <span class="indicator-tag success" id="kpi-ping-tag"><span>●</span> عالی (Ultra Low)</span>
+        </div>
+      </div>
+
+      <!-- KPI 3: Uptime & Reliability -->
+      <div class="kpi-card" style="--accent-color: var(--color-purple);">
+        <div class="kpi-header">
+          <span class="kpi-title">شاخص پایداری و سلامت اتصال</span>
+          <div class="kpi-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value" id="kpi-uptime-val" style="color: var(--color-purple); direction: ltr;">100%</span>
+          <span class="kpi-unit">Uptime</span>
+        </div>
+        <div class="kpi-footer">
+          <span id="kpi-success-rate">۱۰۰٪ موفق بدون بسته مفقودی</span>
+          <span class="indicator-tag success" id="kpi-uptime-tag"><span>●</span> 0% Packet Loss</span>
+        </div>
+      </div>
+
+      <!-- KPI 4: Dual-Probe Verification (Client & Server) -->
+      <div class="kpi-card" style="--accent-color: var(--color-amber);">
+        <div class="kpi-header">
+          <span class="kpi-title">بررسی دوطرفه (کلاینت و سرور)</span>
+          <div class="kpi-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value" id="kpi-dual-val" style="color: var(--color-amber);">تایید دوطرفه</span>
+        </div>
+        <div class="kpi-footer">
+          <span id="kpi-dual-sub">کلاینت: فعال | سرور: آنلاین</span>
+          <span class="indicator-tag success"><span>●</span> ارتباط برقرار</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Monitoring & Real-time Latency Chart Section -->
+    <section class="monitoring-grid">
+      
+      <!-- Latency Chart Card -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="card-title">نمودار زنده تاخیر زمانی اتصال به نوبیتکس</span>
+            <span class="card-subtitle">(Real-Time Ping Latency)</span>
+          </div>
+          <div class="chart-stats-pills">
+            <div class="stat-pill">حداقل: <strong id="chart-min-val" style="color: var(--color-green);">1 ms</strong></div>
+            <div class="stat-pill">میانگین: <strong id="chart-avg-val" style="color: var(--color-cyan);">1 ms</strong></div>
+            <div class="stat-pill">حداکثر: <strong id="chart-max-val" style="color: var(--color-amber);">2 ms</strong></div>
+          </div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="latency-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Dual-Probe Diagnostic Box -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="card-title">تشخیص لایه‌های اتصال نوبیتکس</span>
+          </div>
+        </div>
+        <div class="dual-probe-container">
+          
+          <!-- Server to Nobitex -->
+          <div class="probe-item">
+            <div class="probe-item-header">
+              <span class="probe-item-title">
+                <span>🖥️</span>
+                <span>سرور بک‌اند ➔ نوبیتکس</span>
+              </span>
+              <span class="probe-badge online" id="probe-server-badge">متصل</span>
+            </div>
+            <div class="probe-item-meta">
+              <span>تاخیر شبکه: <strong id="probe-server-latency" style="color: var(--color-cyan);">1 ms</strong></span>
+              <span>هدف: <span id="probe-server-ip" style="font-family: monospace;">185.143.234.130:443</span></span>
+            </div>
+            <p class="probe-desc">برقراری سوکت مستقیم TCP روی پورت ایمن 443 به نودهای لبه CDN ابرآروان نوبیتکس.</p>
+          </div>
+
+          <!-- Browser Client to Nobitex -->
+          <div class="probe-item">
+            <div class="probe-item-header">
+              <span class="probe-item-title">
+                <span>🌐</span>
+                <span>مرورگر شما ➔ نوبیتکس</span>
+              </span>
+              <span class="probe-badge online" id="probe-client-badge">متصل و فعال</span>
+            </div>
+            <div class="probe-item-meta">
+              <span>تاخیر کلاینت: <strong id="probe-client-latency" style="color: var(--color-cyan);">12 ms</strong></span>
+              <span>دسترسی مستقیم اینترنت</span>
+            </div>
+            <p class="probe-desc">بررسی مستقیم درخواست از طریق اینترنت محلی سیستم شما به سامانه نوبیتکس.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Nobitex Core Services Grid -->
+    <section>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+        <h2 style="font-size: 1.05rem; font-weight: 700;">وضعیت سرویس‌ها و زیرساخت‌های نوبیتکس</h2>
+        <span style="font-size: 0.74rem; color: var(--text-muted);">بررسی همزمان پورت‌ها و اندپوینت‌های رسمی</span>
+      </div>
+      <div class="services-grid" id="services-grid">
+        <!-- Dynamically injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Live Crypto Markets & OrderBook Section -->
+    <section class="market-section-grid">
+      
+      <!-- Crypto Markets Table Card -->
+      <div class="dashboard-card">
+        <div class="card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div class="card-title-group">
+            <span class="card-title">قیمت‌های لحظه‌ای بازارهای نوبیتکس</span>
+            <span class="card-subtitle">(Live Nobitex Markets)</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+            <!-- Tabs: IRT / USDT -->
+            <div class="tab-group">
+              <button class="tab-btn active" id="tab-irt">تومان (IRT)</button>
+              <button class="tab-btn" id="tab-usdt">تتر (USDT)</button>
+            </div>
+
+            <!-- Search -->
+            <input type="text" id="market-search" class="form-control" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; width: 140px;" placeholder="جستجوی ارز...">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="market-table">
+            <thead>
+              <tr>
+                <th>ارز / نماد</th>
+                <th>آخرین قیمت (تومان)</th>
+                <th>تغییرات ۲۴ ساعته</th>
+                <th>بیشترین / کمترین ۲۴h</th>
+                <th>حجم معاملات</th>
+                <th>وضعیت</th>
+              </tr>
+            </thead>
+            <tbody id="market-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Live OrderBook & Trades Card -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="card-title">دفترچه سفارشات زنده نوبیتکس</span>
+            <span class="card-subtitle" id="ob-selected-title">بیت‌کوین (BTCIRT)</span>
+          </div>
+          <span class="badge-tag">عمق بازار</span>
+        </div>
+
+        <!-- Orderbook Container -->
+        <div class="orderbook-container">
+          <div class="ob-header">
+            <span>قیمت (تومان)</span>
+            <span>مقدار</span>
+            <span>مجموع</span>
+          </div>
+
+          <!-- Asks (Red) -->
+          <div class="ob-list" id="ob-asks-list"></div>
+
+          <!-- Spread bar -->
+          <div class="ob-spread-bar">
+            <span id="ob-spread-val" style="color: var(--color-cyan); font-weight: 600;">در حال محاسبه اختلاف...</span>
+            <span style="color: var(--text-muted); font-size: 0.68rem;">Spread</span>
+          </div>
+
+          <!-- Bids (Green) -->
+          <div class="ob-list" id="ob-bids-list"></div>
+        </div>
+
+        <!-- Recent Trades -->
+        <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary);">آخرین معاملات انجام شده</span>
+            <span style="font-size: 0.68rem; color: var(--text-muted);">Real-Time Trades</span>
+          </div>
+          <div class="ob-header">
+            <span>قیمت</span>
+            <span>مقدار</span>
+            <span>زمان</span>
+          </div>
+          <div class="ob-list" id="trades-list" style="max-height: 120px;"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Connection Event Logs Section -->
+    <section class="logs-container">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <h2 style="font-size: 0.95rem; font-weight: 700;">لاگ‌های زنده رخدادهای شبکه و اتصال به نوبیتکس</h2>
+          <span class="badge-tag" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); color: var(--color-cyan);">Live Telemetry</span>
+        </div>
+        <button class="btn-icon" id="btn-clear-logs" title="پاکسازی لاگ‌ها" style="width: auto; padding: 0.25rem 0.65rem; font-size: 0.74rem; gap: 0.3rem;">
+          <span>پاکسازی لاگ</span>
+        </button>
+      </div>
+      <div class="logs-scroll-area" id="logs-scroll-area">
+        <!-- Live log entries -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       Diagnostics & Settings Modal
+       ======================================================================== -->
+  <div class="modal-backdrop" id="settings-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">تنظیمات و تست پیشرفته اتصال نوبیتکس</div>
+        <button class="btn-icon" id="modal-close-btn" style="border: none;">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Custom Host Probe Form -->
+        <form id="custom-probe-form" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <h3 style="font-size: 0.85rem; font-weight: 700;">تست اختصاصی هاست یا پورت نوبیتکس (Custom Probe)</h3>
+          
+          <div class="form-group">
+            <label class="form-label">آدرس هاست یا سرور (Host / IP):</label>
+            <input type="text" id="custom-host" class="form-control" value="apiv2.nobitex.ir" placeholder="apiv2.nobitex.ir">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">پورت شبکه (Port):</label>
+            <input type="number" id="custom-port" class="form-control" value="443" placeholder="443">
+          </div>
+
+          <button type="submit" class="btn-primary" style="justify-content: center;">
+            <span>ارسال درخواست پینگ و تست اتصال</span>
+          </button>
+
+          <div id="custom-probe-result" style="font-size: 0.8rem; min-height: 24px;"></div>
+        </form>
+
+        <!-- Network Architecture Info -->
+        <div class="diag-info-box">
+          <strong style="color: var(--color-cyan); display: block; margin-bottom: 0.35rem;">اطلاعات فنی زیرساخت نوبیتکس:</strong>
+          <ul style="padding-right: 1.1rem; font-size: 0.74rem; line-height: 1.6;">
+            <li><strong>توزیع‌کننده CDN:</strong> شبکه ابری ابرآروان (ArvanCloud Anycast Edge)</li>
+            <li><strong>آی‌پی‌های شناسایی شده:</strong> 185.143.234.130 و 185.143.233.130</li>
+            <li><strong>پروتکل امنیتی:</strong> TLS 1.3 با رمزنگاری مدرن روی پورت 443</li>
+            <li><strong>محدودیت‌های دسترسی:</strong> سرورهای نوبیتکس طبق قوانین بانک مرکزی و شاپرک مجهز به فیلتر جغرافیایی (Geo-Filter) جهت مقابله با حملات سایبری و ترافیک غیرمجاز بین‌المللی هستند.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/clock.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/market.js"></script>
+  <script src="js/connection.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
