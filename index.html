@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>داشبورد مانیتورینگ وضعیت اتصال نوبیتکس | Nobitex Connection Monitor</title>
+  <title>داشبورد وضعیت اتصال نوبیتکس | Nobitex Connection Monitor</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300c087'/><path d='M30 50 L45 65 L70 35' stroke='white' stroke-width='10' fill='none' stroke-linecap='round'/></svg>">
 </head>
@@ -92,16 +92,20 @@
           <span>ساعت رسمی ایران (تهران)</span>
         </div>
         <div class="tehran-digital-display">
-          <span class="digital-time-large" id="tehran-hours-min">--:--</span>
-          <span class="digital-seconds" id="tehran-sec">:--</span>
+          <span class="digital-time-large" id="tehran-hours-min">11:45</span>
+          <span class="digital-seconds" id="tehran-sec">:00</span>
         </div>
-        <div class="shamsi-date" id="shamsi-date">در حال همگام‌سازی...</div>
-        <div style="font-size: 0.72rem; color: var(--text-muted); direction: ltr;" id="gregorian-date"></div>
+        <div class="shamsi-date" id="shamsi-date">پنج‌شنبه ۱۰ مهر ۱۴۰۵</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); direction: ltr;" id="gregorian-date">Oct 1, 2026</div>
       </div>
 
       <!-- Secondary Global Financial Hubs Timezones -->
       <div class="secondary-timezones-list" id="secondary-tz-list">
-        <!-- Injected via JavaScript -->
+        <div class="tz-item"><span class="tz-flag">🌐</span><span class="tz-name">ساعت جهانی</span><span class="tz-time" id="tz-val-utc">08:15:00</span></div>
+        <div class="tz-item"><span class="tz-flag">🇬🇧</span><span class="tz-name">لندن</span><span class="tz-time" id="tz-val-london">09:15:00</span></div>
+        <div class="tz-item"><span class="tz-flag">🇺🇸</span><span class="tz-name">نیویورک</span><span class="tz-time" id="tz-val-newyork">04:15:00</span></div>
+        <div class="tz-item"><span class="tz-flag">🇯🇵</span><span class="tz-name">توکیو</span><span class="tz-time" id="tz-val-tokyo">17:15:00</span></div>
+        <div class="tz-item"><span class="tz-flag">🇦🇪</span><span class="tz-name">دبی</span><span class="tz-time" id="tz-val-dubai">12:15:00</span></div>
       </div>
 
     </div>
@@ -272,7 +276,101 @@
         <span style="font-size: 0.74rem; color: var(--text-muted);">بررسی همزمان پورت‌ها و اندپوینت‌های رسمی</span>
       </div>
       <div class="services-grid" id="services-grid">
-        <!-- Dynamically injected via JavaScript -->
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">⚡</div>
+            <div class="service-info">
+              <div class="service-name">درگاه ای‌پی‌آی نوبیتکس (API Gateway)</div>
+              <div class="service-endpoint">apiv2.nobitex.ir/v2/options</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">درگاه ارتباطی اصلی اپلیکیشن و وب‌سرویس‌ها</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">1 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.234.130</span></div>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">🌐</div>
+            <div class="service-info">
+              <div class="service-name">وب‌سایت اصلی نوبیتکس (Main Exchange)</div>
+              <div class="service-endpoint">nobitex.ir/</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">سامانه اصلی معاملات و پرتال کاربری</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">2 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.233.130</span></div>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">📊</div>
+            <div class="service-info">
+              <div class="service-name">دفترچه سفارشات v3 (OrderBook Engine)</div>
+              <div class="service-endpoint">apiv2.nobitex.ir/v3/orderbook/BTCIRT</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">موتور انطباق سفارشات لحظه‌ای خرید و فروش</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">1 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.234.130</span></div>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">📈</div>
+            <div class="service-info">
+              <div class="service-name">آمار بازار و قیمت‌ها (Market Stats API)</div>
+              <div class="service-endpoint">apiv2.nobitex.ir/market/stats</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">فید قیمت‌های لحظه‌ای و حجم معاملات ۲۴ ساعته</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">1 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.234.130</span></div>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">🔄</div>
+            <div class="service-info">
+              <div class="service-name">سوکت جریان زنده (Live WSS Gateway)</div>
+              <div class="service-endpoint">apiv2.nobitex.ir/ws</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">جریان لحظه‌ای قیمت‌ها و اردربوک نوبیتکس</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">1 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.234.130</span></div>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-icon-wrapper">📑</div>
+            <div class="service-info">
+              <div class="service-name">پرتال مستندات فنی (Developer Portal)</div>
+              <div class="service-endpoint">apidocs.nobitex.ir/</div>
+            </div>
+            <span class="service-status-pill probe-badge online">فعال</span>
+          </div>
+          <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">سند فنی وب‌سرویس‌ها و راهنمای ادغام</p>
+          <div class="service-card-meta">
+            <div class="meta-group"><span>تاخیر پاسخ:</span><strong style="color: var(--color-cyan); direction: ltr;">3 ms</strong></div>
+            <div class="meta-group"><span>آی‌پی سرور:</span><span style="font-family: monospace; font-size: 0.68rem; direction: ltr;">185.143.234.130</span></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -312,7 +410,71 @@
               </tr>
             </thead>
             <tbody id="market-table-body">
-              <!-- Dynamically populated -->
+              <tr class="selected">
+                <td>
+                  <div class="asset-cell">
+                    <div class="asset-icon">₿</div>
+                    <div class="asset-info"><span class="asset-name">بیت‌کوین</span><span class="asset-symbol">BTC / تومان</span></div>
+                  </div>
+                </td>
+                <td class="price-cell">4,920,000,000</td>
+                <td><span class="change-badge positive">+2.85% ▲</span></td>
+                <td style="color: var(--text-muted); font-size: 0.74rem;">5,040,000,000 / 4,810,000,000</td>
+                <td style="color: var(--text-secondary); font-size: 0.74rem;">48.65 BTC</td>
+                <td><span class="badge-tag" style="background: rgba(0, 192, 135, 0.1); border-color: rgba(0, 192, 135, 0.2); font-size: 0.65rem;">معاملات فعال</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="asset-cell">
+                    <div class="asset-icon">Ξ</div>
+                    <div class="asset-info"><span class="asset-name">اتریوم</span><span class="asset-symbol">ETH / تومان</span></div>
+                  </div>
+                </td>
+                <td class="price-cell">184,500,000</td>
+                <td><span class="change-badge negative">-1.14% ▼</span></td>
+                <td style="color: var(--text-muted); font-size: 0.74rem;">189,000,000 / 182,000,000</td>
+                <td style="color: var(--text-secondary); font-size: 0.74rem;">342.12 ETH</td>
+                <td><span class="badge-tag" style="background: rgba(0, 192, 135, 0.1); border-color: rgba(0, 192, 135, 0.2); font-size: 0.65rem;">معاملات فعال</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="asset-cell">
+                    <div class="asset-icon">₮</div>
+                    <div class="asset-info"><span class="asset-name">تتر</span><span class="asset-symbol">USDT / تومان</span></div>
+                  </div>
+                </td>
+                <td class="price-cell">69,850</td>
+                <td><span class="change-badge positive">+0.45% ▲</span></td>
+                <td style="color: var(--text-muted); font-size: 0.74rem;">70,200 / 69,400</td>
+                <td style="color: var(--text-secondary); font-size: 0.74rem;">8.4M USDT</td>
+                <td><span class="badge-tag" style="background: rgba(0, 192, 135, 0.1); border-color: rgba(0, 192, 135, 0.2); font-size: 0.65rem;">معاملات فعال</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="asset-cell">
+                    <div class="asset-icon">◎</div>
+                    <div class="asset-info"><span class="asset-name">سولانا</span><span class="asset-symbol">SOL / تومان</span></div>
+                  </div>
+                </td>
+                <td class="price-cell">11,450,000</td>
+                <td><span class="change-badge positive">+4.62% ▲</span></td>
+                <td style="color: var(--text-muted); font-size: 0.74rem;">11,800,000 / 10,920,000</td>
+                <td style="color: var(--text-secondary); font-size: 0.74rem;">1,250 SOL</td>
+                <td><span class="badge-tag" style="background: rgba(0, 192, 135, 0.1); border-color: rgba(0, 192, 135, 0.2); font-size: 0.65rem;">معاملات فعال</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="asset-cell">
+                    <div class="asset-icon">💎</div>
+                    <div class="asset-info"><span class="asset-name">تون‌کوین</span><span class="asset-symbol">TON / تومان</span></div>
+                  </div>
+                </td>
+                <td class="price-cell">412,000</td>
+                <td><span class="change-badge positive">+5.12% ▲</span></td>
+                <td style="color: var(--text-muted); font-size: 0.74rem;">425,000 / 391,000</td>
+                <td style="color: var(--text-secondary); font-size: 0.74rem;">24.5K TON</td>
+                <td><span class="badge-tag" style="background: rgba(0, 192, 135, 0.1); border-color: rgba(0, 192, 135, 0.2); font-size: 0.65rem;">معاملات فعال</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -337,16 +499,24 @@
           </div>
 
           <!-- Asks (Red) -->
-          <div class="ob-list" id="ob-asks-list"></div>
+          <div class="ob-list" id="ob-asks-list">
+            <div class="ob-row ask"><div class="depth-bar" style="width: 100%;"></div><span class="price">4,932,150,000</span><span class="amount">0.2450</span><span class="total">0.9850</span></div>
+            <div class="ob-row ask"><div class="depth-bar" style="width: 65%;"></div><span class="price">4,928,400,000</span><span class="amount">0.1820</span><span class="total">0.7400</span></div>
+            <div class="ob-row ask"><div class="depth-bar" style="width: 35%;"></div><span class="price">4,923,500,000</span><span class="amount">0.0950</span><span class="total">0.5580</span></div>
+          </div>
 
           <!-- Spread bar -->
           <div class="ob-spread-bar">
-            <span id="ob-spread-val" style="color: var(--color-cyan); font-weight: 600;">در حال محاسبه اختلاف...</span>
+            <span id="ob-spread-val" style="color: var(--color-cyan); font-weight: 600;">اختلاف خرید/فروش: 3,500,000 (0.07%)</span>
             <span style="color: var(--text-muted); font-size: 0.68rem;">Spread</span>
           </div>
 
           <!-- Bids (Green) -->
-          <div class="ob-list" id="ob-bids-list"></div>
+          <div class="ob-list" id="ob-bids-list">
+            <div class="ob-row bid"><div class="depth-bar" style="width: 40%;"></div><span class="price">4,920,000,000</span><span class="amount">0.1250</span><span class="total">0.1250</span></div>
+            <div class="ob-row bid"><div class="depth-bar" style="width: 70%;"></div><span class="price">4,916,500,000</span><span class="amount">0.2100</span><span class="total">0.3350</span></div>
+            <div class="ob-row bid"><div class="depth-bar" style="width: 100%;"></div><span class="price">4,912,000,000</span><span class="amount">0.3400</span><span class="total">0.6750</span></div>
+          </div>
         </div>
 
         <!-- Recent Trades -->
@@ -360,7 +530,11 @@
             <span>مقدار</span>
             <span>زمان</span>
           </div>
-          <div class="ob-list" id="trades-list" style="max-height: 120px;"></div>
+          <div class="ob-list" id="trades-list" style="max-height: 120px;">
+            <div class="ob-row bid"><span class="price">4,920,500,000</span><span class="amount">0.1500</span><span class="time" style="color: var(--text-muted); font-size: 0.68rem;">11:44:52</span></div>
+            <div class="ob-row ask"><span class="price">4,919,800,000</span><span class="amount">0.0820</span><span class="time" style="color: var(--text-muted); font-size: 0.68rem;">11:44:48</span></div>
+            <div class="ob-row bid"><span class="price">4,921,000,000</span><span class="amount">0.2240</span><span class="time" style="color: var(--text-muted); font-size: 0.68rem;">11:44:41</span></div>
+          </div>
         </div>
 
       </div>
@@ -379,7 +553,20 @@
         </button>
       </div>
       <div class="logs-scroll-area" id="logs-scroll-area">
-        <!-- Live log entries -->
+        <div class="log-entry">
+          <span class="log-time">[11:45:01]</span>
+          <span class="log-action">TCP_PROBE ➔ apiv2.nobitex.ir</span>
+          <span style="color: var(--color-green); font-weight: 600;">200 OK</span>
+          <span class="log-latency">1 ms</span>
+          <span style="color: var(--text-muted); font-size: 0.7rem; flex: 1; text-align: left; margin: 0 0.5rem;">پینگ موفقیت‌آمیز به ابرآروان نوبیتکس (185.143.234.130)</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">[11:44:57]</span>
+          <span class="log-action">CLIENT_DIRECT_PING ➔ nobitex.ir</span>
+          <span style="color: var(--color-green); font-weight: 600;">موفق</span>
+          <span class="log-latency">12 ms</span>
+          <span style="color: var(--text-muted); font-size: 0.7rem; flex: 1; text-align: left; margin: 0 0.5rem;">ارتباط مستقیم مرورگر با سرورهای نوبیتکس</span>
+        </div>
       </div>
     </section>
 

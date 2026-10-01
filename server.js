@@ -533,9 +533,13 @@ function getTimezones() {
 }
 
 // --- REST API Endpoints ---
-app.get('/api/nobitex/ping', async (req, res) => {
-  const results = await runProbes();
-  res.json(results);
+app.get('/api/nobitex/ping', (req, res) => {
+  if (latestProbeResults && latestProbeResults.summary) {
+    res.json(latestProbeResults);
+    runProbes().catch(() => {});
+  } else {
+    runProbes().then(r => res.json(r)).catch(err => res.status(500).json({ error: err.message }));
+  }
 });
 
 app.get('/api/nobitex/status', (req, res) => {
